@@ -487,6 +487,17 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
 // https://www.igvita.com/slides/2012/devtools-tips-and-tricks/jank-demo.html
 
 // Moves the sliding background pizzas based on scroll position
+//
+// Optimizations:
+// 1. Used requestAnimationFrame() instead of a scroll event to make sure images were
+//    drawn at the appropriate stage of the draw cycle.  This causes the browser to do
+//    more work overall, but always within 30 FPS.
+//
+// 2. Reused the same instance of the phase variable instead of creating a new instance
+//    on each iteration of the loop.
+//
+// 3. Fetched the document.body.scrollTop before the loop to prevent a forced render on
+//    each iteration of the loop.
 function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
@@ -515,6 +526,12 @@ function updatePositions() {
 requestAnimationFrame(updatePositions);
 
 // Generates the sliding pizzas when the page loads.
+//
+// Optimizations:
+// 1. Only create enough pizzas to fit on the screen.
+// 2. Put each animated pizza in its own layer using elem.style.willChange
+// 3. Used document.getElementById instead of document.querySelector
+// 4. Reassigned the same elem variable in the loop instead of creating a new one each time.
 document.addEventListener('DOMContentLoaded', function() {
   var numRows = Math.floor(window.screen.height / 100);
 
